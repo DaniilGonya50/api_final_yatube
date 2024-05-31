@@ -1,5 +1,3 @@
-from django import http
-from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 
@@ -16,23 +14,21 @@ class FollowSerializer(serializers.ModelSerializer):
         slug_field='username', queryset=User.objects.all()
     )
 
-    def validate(self, data):
-        if data['following'] == self.context['request'].user:
+    def validate_following(self, data):
+        if data == self.context['request'].user:
             raise serializers.ValidationError(
                 'Нельзя подписаться на самого себя.')
-        try:
-            get_object_or_404(
-                Follow, user=self.context['request'].user,
-                following=data['following']
-            )
-            raise serializers.ValidationError(
-                'Вы уже подписаны на данного пользователя.')
-        except http.Http404:
-            return data
+        return data
 
     class Meta:
         fields = '__all__'
         model = Follow
+        validators = [
+            serializers.UniqueTogetherValidator(
+                queryset=Follow.objects.all(),
+                fields=('user', 'following')
+            )
+        ]
 
 
 class GroupSerializer(serializers.ModelSerializer):
