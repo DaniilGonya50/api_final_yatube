@@ -12,7 +12,6 @@ router_v1.register(r'posts/(?P<post_id>\d+)/comments', CommentViewSet,
 router_v1.register('follow', FollowViewSet, basename='follow')
 
 urlpatterns = [
-    path(f'{API_VERSION}/', include('djoser.urls')),
     path(f'{API_VERSION}/', include('djoser.urls.jwt')),
     path(f'{API_VERSION}/', include(router_v1.urls)),
 ]
